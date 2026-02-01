@@ -69,6 +69,25 @@
             border-color: #667eea;
         }
 
+        input[type="date"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[readonly] {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+        }
+
         select {
             width: 100%;
             padding: 12px 15px;
@@ -208,18 +227,27 @@
             </div>
 
             <div class="form-group">
+                <label for="startDate">Fecha de Inicio de Trabajo</label>
+                <input 
+                    type="date" 
+                    id="startDate" 
+                    required
+                >
+                <small>Se calcularán automáticamente los meses y días trabajados</small>
+            </div>
+
+            <div class="form-group">
                 <label for="monthsFirstSemester">Meses trabajados (Enero - Junio)</label>
                 <input 
                     type="number" 
                     id="monthsFirstSemester" 
-                    placeholder="Ej: 6"
+                    placeholder="Se calcula automáticamente"
                     min="0"
                     max="6"
                     step="1"
-                    value="6"
-                    required
+                    readonly
                 >
-                <small>Gratificación de Julio (máximo 6 meses)</small>
+                <small>Gratificación de Julio (calculado automáticamente)</small>
             </div>
 
             <div class="form-group">
@@ -227,14 +255,71 @@
                 <input 
                     type="number" 
                     id="monthsSecondSemester" 
-                    placeholder="Ej: 6"
+                    placeholder="Se calcula automáticamente"
                     min="0"
                     max="6"
                     step="1"
-                    value="6"
-                    required
+                    readonly
                 >
-                <small>Gratificación de Diciembre (máximo 6 meses)</small>
+                <small>Gratificación de Diciembre (calculado automáticamente)</small>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <h3 style="color: #333; margin-bottom: 15px; font-size: 1.1em;">CTS (Compensación por Tiempo de Servicios)</h3>
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="ctsMonthsFirst">Meses completos (Noviembre - Abril)</label>
+                    <input 
+                        type="number" 
+                        id="ctsMonthsFirst" 
+                        placeholder="Se calcula automáticamente"
+                        min="0"
+                        max="6"
+                        step="1"
+                        readonly
+                    >
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="ctsDaysFirst">Días adicionales (Noviembre - Abril)</label>
+                    <input 
+                        type="number" 
+                        id="ctsDaysFirst" 
+                        placeholder="Se calcula automáticamente"
+                        min="0"
+                        max="29"
+                        step="1"
+                        readonly
+                    >
+                    <small>CTS de Mayo (calculado automáticamente)</small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="ctsMonthsSecond">Meses completos (Mayo - Octubre)</label>
+                    <input 
+                        type="number" 
+                        id="ctsMonthsSecond" 
+                        placeholder="Se calcula automáticamente"
+                        min="0"
+                        max="6"
+                        step="1"
+                        readonly
+                    >
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="ctsDaysSecond">Días adicionales (Mayo - Octubre)</label>
+                    <input 
+                        type="number" 
+                        id="ctsDaysSecond" 
+                        placeholder="Se calcula automáticamente"
+                        min="0"
+                        max="29"
+                        step="1"
+                        readonly
+                    >
+                    <small>CTS de Noviembre (calculado automáticamente)</small>
+                </div>
             </div>
 
             <div class="form-group">
@@ -295,6 +380,22 @@
             </div>
 
             <div class="breakdown" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                <h3 style="color: #333; margin-bottom: 15px; font-size: 1em;">CTS Anual</h3>
+                <div class="breakdown-item">
+                    <span>CTS de Mayo:</span>
+                    <span id="ctsMay">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>CTS de Noviembre:</span>
+                    <span id="ctsNovember">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item total">
+                    <span>Total CTS Anual:</span>
+                    <span id="totalCTS">S/ 0.00</span>
+                </div>
+            </div>
+
+            <div class="breakdown" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
                 <h3 style="color: #333; margin-bottom: 15px; font-size: 1em;">Desglose Anual (Renta de 5ta Categoría)</h3>
                 <div class="breakdown-item">
                     <span>Sueldo Bruto Anual (12 meses):</span>
@@ -303,6 +404,10 @@
                 <div class="breakdown-item">
                     <span>Gratificaciones Anuales:</span>
                     <span id="gratificacionesInAnnual">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>CTS Anual:</span>
+                    <span id="ctsInAnnual">S/ 0.00</span>
                 </div>
                 <div class="breakdown-item">
                     <span>Ingresos Anuales Totales:</span>
@@ -359,6 +464,10 @@
         const totalGratificaciones = document.getElementById('totalGratificaciones');
         const grossAnnualSalary = document.getElementById('grossAnnualSalary');
         const gratificacionesInAnnual = document.getElementById('gratificacionesInAnnual');
+        const ctsMay = document.getElementById('ctsMay');
+        const ctsNovember = document.getElementById('ctsNovember');
+        const totalCTS = document.getElementById('totalCTS');
+        const ctsInAnnual = document.getElementById('ctsInAnnual');
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('es-PE', {
@@ -408,11 +517,124 @@
             return baseGratificacion + bonus;
         }
 
+        function calculateCTS(grossMonthly, monthsWorked, daysWorked) {
+            // CTS = [(Remuneración Computable / 12) x Meses Trabajados] + [(Remuneración Computable / 360) x Días Trabajados]
+            const monthsPart = (grossMonthly / 12) * monthsWorked;
+            const daysPart = (grossMonthly / 360) * daysWorked;
+            return monthsPart + daysPart;
+        }
+
+        function calculateMonthsAndDays(startDate, endDate) {
+            if (!startDate || !endDate) return { months: 0, days: 0 };
+            
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            
+            // If start date is after end date, return 0
+            if (start > end) return { months: 0, days: 0 };
+            
+            // Normalize to start of day
+            start.setHours(0, 0, 0, 0);
+            end.setHours(0, 0, 0, 0);
+            
+            let months = 0;
+            let days = 0;
+            let currentDate = new Date(start);
+            
+            // Calculate complete months
+            while (currentDate < end) {
+                const nextMonth = new Date(currentDate);
+                nextMonth.setMonth(nextMonth.getMonth() + 1);
+                
+                if (nextMonth <= end) {
+                    months++;
+                    currentDate = new Date(nextMonth);
+                } else {
+                    break;
+                }
+            }
+            
+            // Calculate remaining days from currentDate to end
+            const remainingDate = new Date(currentDate);
+            while (remainingDate < end) {
+                days++;
+                remainingDate.setDate(remainingDate.getDate() + 1);
+            }
+            
+            // Limit months to 6 for semesters
+            months = Math.min(months, 6);
+            
+            // If days >= 30, convert to months (but keep remainder as days)
+            if (days >= 30) {
+                const extraMonths = Math.floor(days / 30);
+                months = Math.min(months + extraMonths, 6);
+                days = days % 30;
+            }
+            
+            return { months: months, days: days };
+        }
+
+        function calculateWorkedTime() {
+            const startDateInput = document.getElementById('startDate').value;
+            if (!startDateInput) {
+                // Reset all fields to 0
+                document.getElementById('monthsFirstSemester').value = '';
+                document.getElementById('monthsSecondSemester').value = '';
+                document.getElementById('ctsMonthsFirst').value = '';
+                document.getElementById('ctsDaysFirst').value = '';
+                document.getElementById('ctsMonthsSecond').value = '';
+                document.getElementById('ctsDaysSecond').value = '';
+                return;
+            }
+            
+            const startDate = new Date(startDateInput);
+            const currentYear = new Date().getFullYear();
+            
+            // Gratificación Julio: Enero 1 - Junio 30
+            const gratificacionJulioStart = new Date(currentYear, 0, 1); // Enero 1
+            const gratificacionJulioEnd = new Date(currentYear, 5, 30); // Junio 30
+            const actualStartJulio = startDate > gratificacionJulioStart ? startDate : gratificacionJulioStart;
+            const timeJulio = calculateMonthsAndDays(actualStartJulio, gratificacionJulioEnd);
+            
+            // Gratificación Diciembre: Julio 1 - Diciembre 31
+            const gratificacionDiciembreStart = new Date(currentYear, 6, 1); // Julio 1
+            const gratificacionDiciembreEnd = new Date(currentYear, 11, 31); // Diciembre 31
+            const actualStartDiciembre = startDate > gratificacionDiciembreStart ? startDate : gratificacionDiciembreStart;
+            const timeDiciembre = calculateMonthsAndDays(actualStartDiciembre, gratificacionDiciembreEnd);
+            
+            // CTS Mayo: Noviembre 1 (año anterior) - Abril 30
+            const ctsMayoStart = new Date(currentYear - 1, 10, 1); // Noviembre 1 año anterior
+            const ctsMayoEnd = new Date(currentYear, 3, 30); // Abril 30
+            const actualStartMayo = startDate > ctsMayoStart ? startDate : ctsMayoStart;
+            const timeMayo = calculateMonthsAndDays(actualStartMayo, ctsMayoEnd);
+            
+            // CTS Noviembre: Mayo 1 - Octubre 31
+            const ctsNoviembreStart = new Date(currentYear, 4, 1); // Mayo 1
+            const ctsNoviembreEnd = new Date(currentYear, 9, 31); // Octubre 31
+            const actualStartNoviembre = startDate > ctsNoviembreStart ? startDate : ctsNoviembreStart;
+            const timeNoviembre = calculateMonthsAndDays(actualStartNoviembre, ctsNoviembreEnd);
+            
+            // Update form fields
+            document.getElementById('monthsFirstSemester').value = timeJulio.months;
+            document.getElementById('monthsSecondSemester').value = timeDiciembre.months;
+            document.getElementById('ctsMonthsFirst').value = timeMayo.months;
+            document.getElementById('ctsDaysFirst').value = timeMayo.days;
+            document.getElementById('ctsMonthsSecond').value = timeNoviembre.months;
+            document.getElementById('ctsDaysSecond').value = timeNoviembre.days;
+        }
+
         function calculateNetSalary() {
+            // First, calculate worked time if start date is provided
+            calculateWorkedTime();
+            
             const grossMonthly = parseFloat(document.getElementById('grossSalary').value);
             const healthInsurance = document.getElementById('healthInsurance').value;
             const monthsFirstSemester = parseInt(document.getElementById('monthsFirstSemester').value) || 0;
             const monthsSecondSemester = parseInt(document.getElementById('monthsSecondSemester').value) || 0;
+            const ctsMonthsFirst = parseInt(document.getElementById('ctsMonthsFirst').value) || 0;
+            const ctsDaysFirst = parseInt(document.getElementById('ctsDaysFirst').value) || 0;
+            const ctsMonthsSecond = parseInt(document.getElementById('ctsMonthsSecond').value) || 0;
+            const ctsDaysSecond = parseInt(document.getElementById('ctsDaysSecond').value) || 0;
             const deductibleExpensesAnnual = parseFloat(document.getElementById('deductibleExpenses').value) || 0;
 
             if (isNaN(grossMonthly) || grossMonthly < 0) {
@@ -425,9 +647,14 @@
             const gratificacionDiciembre = calculateGratificacion(grossMonthly, monthsSecondSemester, healthInsurance);
             const totalGratificacionesAnual = gratificacionJulio + gratificacionDiciembre;
 
-            // Calculate annual income (12 months salary + gratificaciones)
+            // Calculate CTS
+            const ctsMayo = calculateCTS(grossMonthly, ctsMonthsFirst, ctsDaysFirst);
+            const ctsNoviembre = calculateCTS(grossMonthly, ctsMonthsSecond, ctsDaysSecond);
+            const totalCTSAnual = ctsMayo + ctsNoviembre;
+
+            // Calculate annual income (12 months salary + gratificaciones + CTS)
             const grossAnnualSalaryOnly = grossMonthly * 12;
-            const grossAnnual = grossAnnualSalaryOnly + totalGratificacionesAnual;
+            const grossAnnual = grossAnnualSalaryOnly + totalGratificacionesAnual + totalCTSAnual;
 
             // Step 1: Subtract 7 UIT
             const sevenUIT = 7 * UIT_2024;
@@ -460,9 +687,15 @@
             gratificacionDecember.textContent = formatCurrency(gratificacionDiciembre);
             totalGratificaciones.textContent = formatCurrency(totalGratificacionesAnual);
 
+            // CTS breakdown
+            ctsMay.textContent = formatCurrency(ctsMayo);
+            ctsNovember.textContent = formatCurrency(ctsNoviembre);
+            totalCTS.textContent = formatCurrency(totalCTSAnual);
+
             // Annual breakdown
             grossAnnualSalary.textContent = formatCurrency(grossAnnualSalaryOnly);
             gratificacionesInAnnual.textContent = formatCurrency(totalGratificacionesAnual);
+            ctsInAnnual.textContent = formatCurrency(totalCTSAnual);
             annualIncome.textContent = formatCurrency(grossAnnual);
             uitDeduction.textContent = '-' + formatCurrency(sevenUIT);
             expensesDeduction.textContent = '-' + formatCurrency(actualDeductibleExpenses);
@@ -492,6 +725,15 @@
                     calculateNetSalary();
                 }
             });
+        });
+
+        // Calculate worked time when start date changes
+        const startDateInput = document.getElementById('startDate');
+        startDateInput.addEventListener('change', function() {
+            calculateWorkedTime();
+            if (document.getElementById('grossSalary').value) {
+                calculateNetSalary();
+            }
         });
     </script>
 </body>
