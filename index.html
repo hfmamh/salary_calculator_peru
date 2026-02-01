@@ -367,6 +367,10 @@
                     <span id="afpDeduction">-S/ 0.00</span>
                 </div>
                 <div class="breakdown-item">
+                    <span>Prima de Seguro (1.37%):</span>
+                    <span id="insurancePrimeDeduction">-S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
                     <span>Renta de 5ta Categoría (mensual):</span>
                     <span id="taxDeduction">-S/ 0.00</span>
                 </div>
@@ -454,6 +458,7 @@
         // Constants
         const UIT_2024 = 5150.00; // Valor UIT 2024
         const AFP_RATE = 0.10; // 10%
+        const INSURANCE_PRIME_RATE = 0.0137; // 1.37%
         
         // Tax brackets for Renta de 5ta Categoría
         const TAX_BRACKETS = [
@@ -470,6 +475,7 @@
         const grossDisplay = document.getElementById('grossDisplay');
         const taxDeduction = document.getElementById('taxDeduction');
         const afpDeduction = document.getElementById('afpDeduction');
+        const insurancePrimeDeduction = document.getElementById('insurancePrimeDeduction');
         const netDisplay = document.getElementById('netDisplay');
         const annualIncome = document.getElementById('annualIncome');
         const uitDeduction = document.getElementById('uitDeduction');
@@ -694,12 +700,16 @@
             // Calculate AFP (10% of gross monthly)
             const afpAmount = grossMonthly * AFP_RATE;
 
+            // Calculate Insurance Prime (1.37% of gross monthly)
+            const insurancePrimeAmount = grossMonthly * INSURANCE_PRIME_RATE;
+
             // Calculate net salary
-            const netSalary = grossMonthly - afpAmount - monthlyTaxAmount;
+            const netSalary = grossMonthly - afpAmount - insurancePrimeAmount - monthlyTaxAmount;
 
             // Display results
             grossDisplay.textContent = formatCurrency(grossMonthly);
             afpDeduction.textContent = '-' + formatCurrency(afpAmount);
+            insurancePrimeDeduction.textContent = '-' + formatCurrency(insurancePrimeAmount);
             taxDeduction.textContent = '-' + formatCurrency(monthlyTaxAmount);
             netDisplay.textContent = formatCurrency(netSalary);
             netSalaryValue.textContent = formatCurrency(netSalary);
