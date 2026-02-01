@@ -323,6 +323,19 @@
             </div>
 
             <div class="form-group">
+                <label for="additionalIncome">Ingresos Adicionales Anuales (opcional)</label>
+                <input 
+                    type="number" 
+                    id="additionalIncome" 
+                    placeholder="Ej: bonos, comisiones, etc."
+                    min="0"
+                    step="0.01"
+                    value="0"
+                >
+                <small>Solo afecta al cálculo del impuesto de 5ta categoría (no afecta AFP, gratificaciones ni CTS)</small>
+            </div>
+
+            <div class="form-group">
                 <label for="deductibleExpenses">Gastos Deducibles Anuales (opcional)</label>
                 <input 
                     type="number" 
@@ -410,6 +423,10 @@
                     <span id="ctsInAnnual">S/ 0.00</span>
                 </div>
                 <div class="breakdown-item">
+                    <span>Ingresos Adicionales:</span>
+                    <span id="additionalIncomeDisplay">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
                     <span>Ingresos Anuales Totales:</span>
                     <span id="annualIncome">S/ 0.00</span>
                 </div>
@@ -468,6 +485,7 @@
         const ctsNovember = document.getElementById('ctsNovember');
         const totalCTS = document.getElementById('totalCTS');
         const ctsInAnnual = document.getElementById('ctsInAnnual');
+        const additionalIncomeDisplay = document.getElementById('additionalIncomeDisplay');
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('es-PE', {
@@ -635,6 +653,7 @@
             const ctsDaysFirst = parseInt(document.getElementById('ctsDaysFirst').value) || 0;
             const ctsMonthsSecond = parseInt(document.getElementById('ctsMonthsSecond').value) || 0;
             const ctsDaysSecond = parseInt(document.getElementById('ctsDaysSecond').value) || 0;
+            const additionalIncomeAnnual = parseFloat(document.getElementById('additionalIncome').value) || 0;
             const deductibleExpensesAnnual = parseFloat(document.getElementById('deductibleExpenses').value) || 0;
 
             if (isNaN(grossMonthly) || grossMonthly < 0) {
@@ -654,11 +673,14 @@
 
             // Calculate annual income (12 months salary + gratificaciones + CTS)
             const grossAnnualSalaryOnly = grossMonthly * 12;
+            // For tax calculation, include additional income (bonos, comisiones, etc.)
+            const grossAnnualForTax = grossAnnualSalaryOnly + totalGratificacionesAnual + totalCTSAnual + additionalIncomeAnnual;
+            // For display purposes (without additional income in base salary)
             const grossAnnual = grossAnnualSalaryOnly + totalGratificacionesAnual + totalCTSAnual;
 
-            // Step 1: Subtract 7 UIT
+            // Step 1: Subtract 7 UIT (using grossAnnualForTax which includes additional income)
             const sevenUIT = 7 * UIT_2024;
-            let taxableBaseAmount = grossAnnual - sevenUIT;
+            let taxableBaseAmount = grossAnnualForTax - sevenUIT;
 
             // Step 2: Subtract deductible expenses (max 3 UIT)
             const maxDeductibleExpenses = 3 * UIT_2024;
@@ -696,7 +718,8 @@
             grossAnnualSalary.textContent = formatCurrency(grossAnnualSalaryOnly);
             gratificacionesInAnnual.textContent = formatCurrency(totalGratificacionesAnual);
             ctsInAnnual.textContent = formatCurrency(totalCTSAnual);
-            annualIncome.textContent = formatCurrency(grossAnnual);
+            additionalIncomeDisplay.textContent = formatCurrency(additionalIncomeAnnual);
+            annualIncome.textContent = formatCurrency(grossAnnualForTax);
             uitDeduction.textContent = '-' + formatCurrency(sevenUIT);
             expensesDeduction.textContent = '-' + formatCurrency(actualDeductibleExpenses);
             taxableBase.textContent = formatCurrency(taxableBaseAmount);
