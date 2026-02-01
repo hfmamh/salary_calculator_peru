@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Sueldo Neto - Perú</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .deductions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .deductions h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .deduction-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .deduction-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .result-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .result-value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .breakdown {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .breakdown-item.total {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Calculadora de Sueldo Neto</h1>
+        <p class="subtitle">Calcula tu sueldo neto según el sistema tributario peruano</p>
+        
+        <form id="salaryForm">
+            <div class="form-group">
+                <label for="grossSalary">Sueldo Bruto (mensual)</label>
+                <input 
+                    type="number" 
+                    id="grossSalary" 
+                    placeholder="Ingresa tu sueldo bruto mensual"
+                    min="0"
+                    step="0.01"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="deductibleExpenses">Gastos Deducibles Anuales (opcional)</label>
+                <input 
+                    type="number" 
+                    id="deductibleExpenses" 
+                    placeholder="Ej: 6,000 (máximo 3 UIT = S/ 15,450)"
+                    min="0"
+                    step="0.01"
+                    value="0"
+                >
+                <small style="color: #999; font-size: 0.85em; display: block; margin-top: 5px;">
+                    Máximo: 3 UIT = S/ 15,450.00 (30% de alquileres pagados)
+                </small>
+            </div>
+
+            <button type="submit" class="calculate-btn">Calcular Sueldo Neto</button>
+        </form>
+
+        <div id="result" style="display: none;">
+            <div class="result">
+                <div class="result-label">Tu Sueldo Neto Mensual</div>
+                <div class="result-value" id="netSalaryValue">S/ 0.00</div>
+            </div>
+
+            <div class="breakdown">
+                <div class="breakdown-item">
+                    <span>Sueldo Bruto Mensual:</span>
+                    <span id="grossDisplay">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>AFP (10%):</span>
+                    <span id="afpDeduction">-S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Renta de 5ta Categoría (mensual):</span>
+                    <span id="taxDeduction">-S/ 0.00</span>
+                </div>
+                <div class="breakdown-item total">
+                    <span>Sueldo Neto Mensual:</span>
+                    <span id="netDisplay">S/ 0.00</span>
+                </div>
+            </div>
+
+            <div class="breakdown" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                <h3 style="color: #333; margin-bottom: 15px; font-size: 1em;">Desglose Anual (Renta de 5ta Categoría)</h3>
+                <div class="breakdown-item">
+                    <span>Ingresos Anuales:</span>
+                    <span id="annualIncome">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Menos 7 UIT:</span>
+                    <span id="uitDeduction">-S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Menos Gastos Deducibles:</span>
+                    <span id="expensesDeduction">-S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Base Imponible:</span>
+                    <span id="taxableBase">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Impuesto Anual Calculado:</span>
+                    <span id="annualTax">S/ 0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants
+        const UIT_2024 = 5150.00; // Valor UIT 2024
+        const AFP_RATE = 0.10; // 10%
+        
+        // Tax brackets for Renta de 5ta Categoría
+        const TAX_BRACKETS = [
+            { min: 0, max: 5 * UIT_2024, rate: 0.08 },      // 0-5 UIT: 8%
+            { min: 5 * UIT_2024, max: 20 * UIT_2024, rate: 0.14 },  // 5-20 UIT: 14%
+            { min: 20 * UIT_2024, max: 35 * UIT_2024, rate: 0.17 }, // 20-35 UIT: 17%
+            { min: 35 * UIT_2024, max: 45 * UIT_2024, rate: 0.20 }, // 35-45 UIT: 20%
+            { min: 45 * UIT_2024, max: Infinity, rate: 0.30 }        // Más de 45 UIT: 30%
+        ];
+
+        const form = document.getElementById('salaryForm');
+        const resultDiv = document.getElementById('result');
+        const netSalaryValue = document.getElementById('netSalaryValue');
+        const grossDisplay = document.getElementById('grossDisplay');
+        const taxDeduction = document.getElementById('taxDeduction');
+        const afpDeduction = document.getElementById('afpDeduction');
+        const netDisplay = document.getElementById('netDisplay');
+        const annualIncome = document.getElementById('annualIncome');
+        const uitDeduction = document.getElementById('uitDeduction');
+        const expensesDeduction = document.getElementById('expensesDeduction');
+        const taxableBase = document.getElementById('taxableBase');
+        const annualTax = document.getElementById('annualTax');
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('es-PE', {
+                style: 'currency',
+                currency: 'PEN',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+
+        function calculateProgressiveTax(taxableAmount) {
+            let totalTax = 0;
+            let remainingAmount = taxableAmount;
+
+            for (let i = 0; i < TAX_BRACKETS.length && remainingAmount > 0; i++) {
+                const bracket = TAX_BRACKETS[i];
+                const bracketMin = bracket.min;
+                const bracketMax = bracket.max === Infinity ? remainingAmount : bracket.max;
+                
+                if (taxableAmount > bracketMin) {
+                    const taxableInBracket = Math.min(remainingAmount, bracketMax - bracketMin);
+                    if (taxableInBracket > 0) {
+                        totalTax += taxableInBracket * bracket.rate;
+                        remainingAmount -= taxableInBracket;
+                    }
+                }
+            }
+
+            return totalTax;
+        }
+
+        function calculateNetSalary() {
+            const grossMonthly = parseFloat(document.getElementById('grossSalary').value);
+            const deductibleExpensesAnnual = parseFloat(document.getElementById('deductibleExpenses').value) || 0;
+
+            if (isNaN(grossMonthly) || grossMonthly < 0) {
+                alert('Por favor ingresa un sueldo bruto válido');
+                return;
+            }
+
+            // Calculate annual income
+            const grossAnnual = grossMonthly * 12;
+
+            // Step 1: Subtract 7 UIT
+            const sevenUIT = 7 * UIT_2024;
+            let taxableBaseAmount = grossAnnual - sevenUIT;
+
+            // Step 2: Subtract deductible expenses (max 3 UIT)
+            const maxDeductibleExpenses = 3 * UIT_2024;
+            const actualDeductibleExpenses = Math.min(deductibleExpensesAnnual, maxDeductibleExpenses);
+            taxableBaseAmount = Math.max(0, taxableBaseAmount - actualDeductibleExpenses);
+
+            // Step 3: Calculate progressive tax
+            const annualTaxAmount = taxableBaseAmount > 0 ? calculateProgressiveTax(taxableBaseAmount) : 0;
+            const monthlyTaxAmount = annualTaxAmount / 12;
+
+            // Calculate AFP (10% of gross monthly)
+            const afpAmount = grossMonthly * AFP_RATE;
+
+            // Calculate net salary
+            const netSalary = grossMonthly - afpAmount - monthlyTaxAmount;
+
+            // Display results
+            grossDisplay.textContent = formatCurrency(grossMonthly);
+            afpDeduction.textContent = '-' + formatCurrency(afpAmount);
+            taxDeduction.textContent = '-' + formatCurrency(monthlyTaxAmount);
+            netDisplay.textContent = formatCurrency(netSalary);
+            netSalaryValue.textContent = formatCurrency(netSalary);
+
+            // Annual breakdown
+            annualIncome.textContent = formatCurrency(grossAnnual);
+            uitDeduction.textContent = '-' + formatCurrency(sevenUIT);
+            expensesDeduction.textContent = '-' + formatCurrency(actualDeductibleExpenses);
+            taxableBase.textContent = formatCurrency(taxableBaseAmount);
+            annualTax.textContent = formatCurrency(annualTaxAmount);
+
+            // Show result
+            resultDiv.style.display = 'block';
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculateNetSalary();
+        });
+
+        // Auto-calculate on input change
+        const inputs = document.querySelectorAll('input[type="number"]');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                if (document.getElementById('grossSalary').value) {
+                    calculateNetSalary();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
