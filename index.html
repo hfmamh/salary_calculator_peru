@@ -26,7 +26,7 @@
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             padding: 40px;
-            max-width: 600px;
+            max-width: 650px;
             width: 100%;
         }
 
@@ -67,6 +67,29 @@
         input[type="number"]:focus {
             outline: none;
             border-color: #667eea;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        small {
+            color: #999;
+            font-size: 0.85em;
+            display: block;
+            margin-top: 5px;
         }
 
         .deductions {
@@ -177,6 +200,44 @@
             </div>
 
             <div class="form-group">
+                <label for="healthInsurance">Tipo de Seguro de Salud</label>
+                <select id="healthInsurance" required>
+                    <option value="essalud">EsSalud (9%)</option>
+                    <option value="eps">EPS (6.75%)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="monthsFirstSemester">Meses trabajados (Enero - Junio)</label>
+                <input 
+                    type="number" 
+                    id="monthsFirstSemester" 
+                    placeholder="Ej: 6"
+                    min="0"
+                    max="6"
+                    step="1"
+                    value="6"
+                    required
+                >
+                <small>Gratificación de Julio (máximo 6 meses)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="monthsSecondSemester">Meses trabajados (Julio - Diciembre)</label>
+                <input 
+                    type="number" 
+                    id="monthsSecondSemester" 
+                    placeholder="Ej: 6"
+                    min="0"
+                    max="6"
+                    step="1"
+                    value="6"
+                    required
+                >
+                <small>Gratificación de Diciembre (máximo 6 meses)</small>
+            </div>
+
+            <div class="form-group">
                 <label for="deductibleExpenses">Gastos Deducibles Anuales (opcional)</label>
                 <input 
                     type="number" 
@@ -186,9 +247,7 @@
                     step="0.01"
                     value="0"
                 >
-                <small style="color: #999; font-size: 0.85em; display: block; margin-top: 5px;">
-                    Máximo: 3 UIT = S/ 15,450.00 (30% de alquileres pagados)
-                </small>
+                <small>Máximo: 3 UIT = S/ 15,450.00 (30% de alquileres pagados)</small>
             </div>
 
             <button type="submit" class="calculate-btn">Calcular Sueldo Neto</button>
@@ -220,9 +279,33 @@
             </div>
 
             <div class="breakdown" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                <h3 style="color: #333; margin-bottom: 15px; font-size: 1em;">Gratificaciones Anuales</h3>
+                <div class="breakdown-item">
+                    <span>Gratificación de Julio:</span>
+                    <span id="gratificacionJuly">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Gratificación de Diciembre:</span>
+                    <span id="gratificacionDecember">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item total">
+                    <span>Total Gratificaciones Anuales:</span>
+                    <span id="totalGratificaciones">S/ 0.00</span>
+                </div>
+            </div>
+
+            <div class="breakdown" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
                 <h3 style="color: #333; margin-bottom: 15px; font-size: 1em;">Desglose Anual (Renta de 5ta Categoría)</h3>
                 <div class="breakdown-item">
-                    <span>Ingresos Anuales:</span>
+                    <span>Sueldo Bruto Anual (12 meses):</span>
+                    <span id="grossAnnualSalary">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Gratificaciones Anuales:</span>
+                    <span id="gratificacionesInAnnual">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Ingresos Anuales Totales:</span>
                     <span id="annualIncome">S/ 0.00</span>
                 </div>
                 <div class="breakdown-item">
@@ -271,6 +354,11 @@
         const expensesDeduction = document.getElementById('expensesDeduction');
         const taxableBase = document.getElementById('taxableBase');
         const annualTax = document.getElementById('annualTax');
+        const gratificacionJuly = document.getElementById('gratificacionJuly');
+        const gratificacionDecember = document.getElementById('gratificacionDecember');
+        const totalGratificaciones = document.getElementById('totalGratificaciones');
+        const grossAnnualSalary = document.getElementById('grossAnnualSalary');
+        const gratificacionesInAnnual = document.getElementById('gratificacionesInAnnual');
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('es-PE', {
@@ -302,8 +390,29 @@
             return totalTax;
         }
 
+        function calculateGratificacion(grossMonthly, monthsWorked, healthInsuranceType) {
+            if (monthsWorked <= 0) return 0;
+            
+            // Base calculation: (salary × months) ÷ 6
+            const baseGratificacion = (grossMonthly * monthsWorked) / 6;
+            
+            // Add percentage based on health insurance
+            let bonusRate = 0;
+            if (healthInsuranceType === 'essalud') {
+                bonusRate = 0.09; // 9% for EsSalud
+            } else if (healthInsuranceType === 'eps') {
+                bonusRate = 0.0675; // 6.75% for EPS
+            }
+            
+            const bonus = baseGratificacion * bonusRate;
+            return baseGratificacion + bonus;
+        }
+
         function calculateNetSalary() {
             const grossMonthly = parseFloat(document.getElementById('grossSalary').value);
+            const healthInsurance = document.getElementById('healthInsurance').value;
+            const monthsFirstSemester = parseInt(document.getElementById('monthsFirstSemester').value) || 0;
+            const monthsSecondSemester = parseInt(document.getElementById('monthsSecondSemester').value) || 0;
             const deductibleExpensesAnnual = parseFloat(document.getElementById('deductibleExpenses').value) || 0;
 
             if (isNaN(grossMonthly) || grossMonthly < 0) {
@@ -311,8 +420,14 @@
                 return;
             }
 
-            // Calculate annual income
-            const grossAnnual = grossMonthly * 12;
+            // Calculate gratificaciones
+            const gratificacionJulio = calculateGratificacion(grossMonthly, monthsFirstSemester, healthInsurance);
+            const gratificacionDiciembre = calculateGratificacion(grossMonthly, monthsSecondSemester, healthInsurance);
+            const totalGratificacionesAnual = gratificacionJulio + gratificacionDiciembre;
+
+            // Calculate annual income (12 months salary + gratificaciones)
+            const grossAnnualSalaryOnly = grossMonthly * 12;
+            const grossAnnual = grossAnnualSalaryOnly + totalGratificacionesAnual;
 
             // Step 1: Subtract 7 UIT
             const sevenUIT = 7 * UIT_2024;
@@ -340,7 +455,14 @@
             netDisplay.textContent = formatCurrency(netSalary);
             netSalaryValue.textContent = formatCurrency(netSalary);
 
+            // Gratificaciones breakdown
+            gratificacionJuly.textContent = formatCurrency(gratificacionJulio);
+            gratificacionDecember.textContent = formatCurrency(gratificacionDiciembre);
+            totalGratificaciones.textContent = formatCurrency(totalGratificacionesAnual);
+
             // Annual breakdown
+            grossAnnualSalary.textContent = formatCurrency(grossAnnualSalaryOnly);
+            gratificacionesInAnnual.textContent = formatCurrency(totalGratificacionesAnual);
             annualIncome.textContent = formatCurrency(grossAnnual);
             uitDeduction.textContent = '-' + formatCurrency(sevenUIT);
             expensesDeduction.textContent = '-' + formatCurrency(actualDeductibleExpenses);
@@ -358,9 +480,14 @@
         });
 
         // Auto-calculate on input change
-        const inputs = document.querySelectorAll('input[type="number"]');
+        const inputs = document.querySelectorAll('input[type="number"], select');
         inputs.forEach(input => {
             input.addEventListener('input', function() {
+                if (document.getElementById('grossSalary').value) {
+                    calculateNetSalary();
+                }
+            });
+            input.addEventListener('change', function() {
                 if (document.getElementById('grossSalary').value) {
                     calculateNetSalary();
                 }
