@@ -1,5 +1,7 @@
 # Calculadora de Sueldo Neto - Perú
 
+[![Deploy workflow](https://github.com/hfmamh/salary_calculator_peru/actions/workflows/deploy.yml/badge.svg)](https://github.com/hfmamh/salary_calculator_peru/actions/workflows/deploy.yml) [🔗 Sitio (GitHub Pages)](https://hfmamh.github.io/salary_calculator_peru/)
+
 Calculadora web para calcular el sueldo neto según el sistema tributario peruano, incluyendo descuentos de AFP, prima de seguro, impuestos de 5ta categoría, gratificaciones y CTS.
 
 ## Estructura del Proyecto
@@ -25,7 +27,8 @@ vibe_coding/
 - ✅ Cálculo automático de CTS (Mayo y Noviembre)
 - ✅ Cálculo automático de meses y días trabajados basado en fecha de inicio
 - ✅ Soporte para ingresos adicionales (solo afectan impuestos)
-- ✅ Soporte para gastos deducibles- 🔁 UI: el campo "Tipo de Seguro de Salud" ahora usa un **radio-toggle** (EsSalud / EPS) — mejora la accesibilidad y evita selecciones inválidas
+- ✅ Soporte para gastos deducibles
+- 🔁 UI: el campo "Tipo de Seguro de Salud" ahora usa un **radio-toggle** (EsSalud / EPS) — mejora la accesibilidad y evita selecciones inválidas
 ## Configuración
 
 Las variables que pueden cambiar en el tiempo (UIT, tasas, tramos de impuestos) están en `js/config.js`. Actualiza estos valores cuando cambien las leyes o regulaciones peruanas.
