@@ -191,3 +191,54 @@ small {
     padding-top: 10px;
     border-top: 2px solid #e0e0e0;
 }
+
+/* Radio toggle buttons for health insurance */
+.radio-toggle {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+}
+.radio-toggle input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.radio-toggle__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.15s ease-in-out;
+    user-select: none;
+    font-size: 0.95em;
+}
+.radio-toggle__button small {
+    display: inline-block;
+    font-weight: 600;
+    font-size: 0.8em;
+    color: #666;
+}
+/* Make the rate percentage inherit white when the option is selected */
+.radio-toggle input[type="radio"]:checked + .radio-toggle__button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 8px 20px rgba(118,75,162,0.25);
+}
+.radio-toggle input[type="radio"]:checked + .radio-toggle__button small {
+    color: #fff;
+}
+.radio-toggle input[type="radio"]:focus + .radio-toggle__button {
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.18);
+}
+.radio-toggle__button:active {
+    transform: translateY(1px);
+}
+
