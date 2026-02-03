@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Sueldo Neto - Perú</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Calculadora de Sueldo Neto</h1>
+        <p class="subtitle">Calcula tu sueldo neto según el sistema tributario peruano</p>
+        
+        <form id="salaryForm">
+            <div class="form-group">
+                <label for="grossSalary">Sueldo Bruto (mensual)</label>
+                <input 
+                    type="number" 
+                    id="grossSalary" 
+                    placeholder="Ingresa tu sueldo bruto mensual"
+                    min="0"
+                    step="0.01"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="healthInsurance">Tipo de Seguro de Salud</label>
+                <div class="radio-toggle" role="radiogroup" aria-label="Tipo de Seguro de Salud">
+                    <input type="radio" name="healthInsurance" id="healthInsurance_essalud" value="essalud" checked>
+                    <label for="healthInsurance_essalud" class="radio-toggle__button">EsSalud <small>9%</small></label>
+
+                    <input type="radio" name="healthInsurance" id="healthInsurance_eps" value="eps">
+                    <label for="healthInsurance_eps" class="radio-toggle__button">EPS <small>6.75%</small></label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="startDate">Fecha de Inicio de Trabajo</label>
+                <input 
+                    type="date" 
+                    id="startDate" 
+                    required
+                >
+                <small>Se calcularán automáticamente los meses y días trabajados</small>
+            </div>
+
+            <div class="form-group">
+                <label for="monthsFirstSemester">Meses trabajados (Enero - Junio)</label>
+                <input 
+                    type="number" 
+                    id="monthsFirstSemester" 
+                    placeholder="Se calcula automáticamente"
+                    min="0"
+                    max="6"
+                    step="1"
+                    readonly
+                >
+                <small>Gratificación de Julio (calculado automáticamente)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="monthsSecondSemester">Meses trabajados (Julio - Diciembre)</label>
+                <input 
+                    type="number" 
+                    id="monthsSecondSemester" 
+                    placeholder="Se calcula automáticamente"
+                    min="0"
+                    max="6"
+                    step="1"
+                    readonly
+                >
+                <small>Gratificación de Diciembre (calculado automáticamente)</small>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <h3 style="color: #333; margin-bottom: 15px; font-size: 1.1em;">CTS (Compensación por Tiempo de Servicios)</h3>
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="ctsMonthsFirst">Meses completos (Noviembre - Abril)</label>
+                    <input 
+                        type="number" 
+                        id="ctsMonthsFirst" 
+                        placeholder="Se calcula automáticamente"
+                        min="0"
+                        max="6"
+                        step="1"
+                        readonly
+                    >
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="ctsDaysFirst">Días adicionales (Noviembre - Abril)</label>
+                    <input 
+                        type="number" 
+                        id="ctsDaysFirst" 
+                        placeholder="Se calcula automáticamente"
+                        min="0"
+                        max="29"
+                        step="1"
+                        readonly
+                    >
+                    <small>CTS de Mayo (calculado automáticamente)</small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="ctsMonthsSecond">Meses completos (Mayo - Octubre)</label>
+                    <input 
+                        type="number" 
+                        id="ctsMonthsSecond" 
+                        placeholder="Se calcula automáticamente"
+                        min="0"
+                        max="6"
+                        step="1"
+                        readonly
+                    >
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="ctsDaysSecond">Días adicionales (Mayo - Octubre)</label>
+                    <input 
+                        type="number" 
+                        id="ctsDaysSecond" 
+                        placeholder="Se calcula automáticamente"
+                        min="0"
+                        max="29"
+                        step="1"
+                        readonly
+                    >
+                    <small>CTS de Noviembre (calculado automáticamente)</small>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="additionalIncome">Ingresos Adicionales Anuales (opcional)</label>
+                <input 
+                    type="number" 
+                    id="additionalIncome" 
+                    placeholder="Ej: bonos, comisiones, etc."
+                    min="0"
+                    step="0.01"
+                    value="0"
+                >
+                <small>Solo afecta al cálculo del impuesto de 5ta categoría (no afecta AFP, gratificaciones ni CTS)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="deductibleExpenses">Gastos Deducibles Anuales (opcional)</label>
+                <input 
+                    type="number" 
+                    id="deductibleExpenses" 
+                    placeholder="Ej: 6,000 (máximo 3 UIT = S/ 15,450)"
+                    min="0"
+                    step="0.01"
+                    value="0"
+                >
+                <small>Máximo: 3 UIT = S/ 15,450.00 (30% de alquileres pagados)</small>
+            </div>
+
+            <button type="submit" class="calculate-btn">Calcular Sueldo Neto</button>
+        </form>
+
+        <div id="result" style="display: none;">
+            <div class="result">
+                <div class="result-label">Tu Sueldo Neto Mensual</div>
+                <div class="result-value" id="netSalaryValue">S/ 0.00</div>
+            </div>
+
+            <div class="breakdown">
+                <div class="breakdown-item">
+                    <span>Sueldo Bruto Mensual:</span>
+                    <span id="grossDisplay">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>AFP (10%):</span>
+                    <span id="afpDeduction">-S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Prima de Seguro (1.37%):</span>
+                    <span id="insurancePrimeDeduction">-S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Renta de 5ta Categoría (mensual):</span>
+                    <span id="taxDeduction">-S/ 0.00</span>
+                </div>
+                <div class="breakdown-item total">
+                    <span>Sueldo Neto Mensual:</span>
+                    <span id="netDisplay">S/ 0.00</span>
+                </div>
+            </div>
+
+            <div class="breakdown" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                <h3 style="color: #333; margin-bottom: 15px; font-size: 1em;">Gratificaciones Anuales</h3>
+                <div class="breakdown-item">
+                    <span>Gratificación de Julio:</span>
+                    <span id="gratificacionJuly">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Gratificación de Diciembre:</span>
+                    <span id="gratificacionDecember">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item total">
+                    <span>Total Gratificaciones Anuales:</span>
+                    <span id="totalGratificaciones">S/ 0.00</span>
+                </div>
+            </div>
+
+            <div class="breakdown" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                <h3 style="color: #333; margin-bottom: 15px; font-size: 1em;">CTS Anual</h3>
+                <div class="breakdown-item">
+                    <span>CTS de Mayo:</span>
+                    <span id="ctsMay">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>CTS de Noviembre:</span>
+                    <span id="ctsNovember">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item total">
+                    <span>Total CTS Anual:</span>
+                    <span id="totalCTS">S/ 0.00</span>
+                </div>
+            </div>
+
+            <div class="breakdown" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                <h3 style="color: #333; margin-bottom: 15px; font-size: 1em;">Desglose Anual (Renta de 5ta Categoría)</h3>
+                <div class="breakdown-item">
+                    <span>Sueldo Bruto Anual (12 meses):</span>
+                    <span id="grossAnnualSalary">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Gratificaciones Anuales:</span>
+                    <span id="gratificacionesInAnnual">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>CTS Anual:</span>
+                    <span id="ctsInAnnual">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Ingresos Adicionales:</span>
+                    <span id="additionalIncomeDisplay">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Ingresos Anuales Totales:</span>
+                    <span id="annualIncome">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Menos 7 UIT:</span>
+                    <span id="uitDeduction">-S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Menos Gastos Deducibles:</span>
+                    <span id="expensesDeduction">-S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Base Imponible:</span>
+                    <span id="taxableBase">S/ 0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Impuesto Anual Calculado:</span>
+                    <span id="annualTax">S/ 0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cargar configuración primero -->
+    <script src="js/config.js"></script>
+    <!-- Luego cargar la aplicación -->
+    <script src="js/app.js"></script>
+</body>
+</html>
