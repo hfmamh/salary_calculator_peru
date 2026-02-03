@@ -26,10 +26,13 @@
 
             <div class="form-group">
                 <label for="healthInsurance">Tipo de Seguro de Salud</label>
-                <select id="healthInsurance" required>
-                    <option value="essalud">EsSalud (9%)</option>
-                    <option value="eps">EPS (6.75%)</option>
-                </select>
+                <div class="radio-toggle" role="radiogroup" aria-label="Tipo de Seguro de Salud">
+                    <input type="radio" name="healthInsurance" id="healthInsurance_essalud" value="essalud" checked>
+                    <label for="healthInsurance_essalud" class="radio-toggle__button">EsSalud <small>9%</small></label>
+
+                    <input type="radio" name="healthInsurance" id="healthInsurance_eps" value="eps">
+                    <label for="healthInsurance_eps" class="radio-toggle__button">EPS <small>6.75%</small></label>
+                </div>
             </div>
 
             <div class="form-group">

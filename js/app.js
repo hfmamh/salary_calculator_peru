@@ -213,7 +213,8 @@ function calculateNetSalary() {
     calculateWorkedTime();
     
     const grossMonthly = parseFloat(document.getElementById('grossSalary').value);
-    const healthInsurance = document.getElementById('healthInsurance').value;
+    const healthInsuranceInput = document.querySelector('input[name="healthInsurance"]:checked');
+    const healthInsurance = healthInsuranceInput ? healthInsuranceInput.value : 'essalud';
     const monthsFirstSemester = parseInt(document.getElementById('monthsFirstSemester').value) || 0;
     const monthsSecondSemester = parseInt(document.getElementById('monthsSecondSemester').value) || 0;
     const ctsMonthsFirst = parseInt(document.getElementById('ctsMonthsFirst').value) || 0;
@@ -308,7 +309,7 @@ form.addEventListener('submit', function(e) {
 });
 
 // Auto-calculate on input change
-const inputs = document.querySelectorAll('input[type="number"], select');
+const inputs = document.querySelectorAll('input[type="number"], input[type="radio"], select');
 inputs.forEach(input => {
     input.addEventListener('input', function() {
         if (document.getElementById('grossSalary').value) {
