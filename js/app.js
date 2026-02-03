@@ -105,51 +105,49 @@ function calculateCTS(grossMonthly, monthsWorked, daysWorked) {
  */
 function calculateMonthsAndDays(startDate, endDate) {
     if (!startDate || !endDate) return { months: 0, days: 0 };
-    
+
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     // If start date is after end date, return 0
     if (start > end) return { months: 0, days: 0 };
-    
+
     // Normalize to start of day
     start.setHours(0, 0, 0, 0);
     end.setHours(0, 0, 0, 0);
-    
-    let months = 0;
+
+    // Inclusive month count (useful for full-month ranges)
+    const inclusiveMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
+    const lastDayOfEndMonth = new Date(end.getFullYear(), end.getMonth() + 1, 0).getDate();
+
+    // If range covers whole calendar months (start on day 1 and end on last day), treat as full inclusive months
+    if (start.getDate() === 1 && end.getDate() === lastDayOfEndMonth) {
+        return { months: Math.min(inclusiveMonths, 6), days: 0 };
+    }
+
+    // Otherwise compute full months and leftover days in a calendar-aware way
+    let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
     let days = 0;
-    let currentDate = new Date(start);
-    
-    // Calculate complete months
-    while (currentDate < end) {
-        const nextMonth = new Date(currentDate);
-        nextMonth.setMonth(nextMonth.getMonth() + 1);
-        
-        if (nextMonth <= end) {
-            months++;
-            currentDate = new Date(nextMonth);
-        } else {
-            break;
-        }
+
+    if (end.getDate() >= start.getDate()) {
+        days = end.getDate() - start.getDate();
+    } else {
+        // borrow one month
+        months -= 1;
+        const prevMonthLastDay = new Date(end.getFullYear(), end.getMonth(), 0).getDate();
+        days = prevMonthLastDay - start.getDate() + end.getDate();
     }
-    
-    // Calculate remaining days from currentDate to end
-    const remainingDate = new Date(currentDate);
-    while (remainingDate < end) {
-        days++;
-        remainingDate.setDate(remainingDate.getDate() + 1);
-    }
-    
+
     // Limit months to 6 for semesters
-    months = Math.min(months, 6);
-    
-    // If days >= 30, convert to months (but keep remainder as days)
+    months = Math.min(Math.max(months, 0), 6);
+
+    // Normalize days into months if >= 30
     if (days >= 30) {
         const extraMonths = Math.floor(days / 30);
         months = Math.min(months + extraMonths, 6);
         days = days % 30;
     }
-    
+
     return { months: months, days: days };
 }
 
