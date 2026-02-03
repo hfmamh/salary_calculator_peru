@@ -106,15 +106,25 @@ function calculateCTS(grossMonthly, monthsWorked, daysWorked) {
 function calculateMonthsAndDays(startDate, endDate) {
     if (!startDate || !endDate) return { months: 0, days: 0 };
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Helper to normalize inputs to a local calendar Date (avoid ISO string timezone shifts)
+    function toLocalDate(d) {
+        if (d instanceof Date) return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        if (typeof d === 'string') {
+            const m = d.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (m) return new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10));
+            // fallback
+            const parsed = new Date(d);
+            return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+        }
+        const parsed = new Date(d);
+        return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+    }
+
+    const start = toLocalDate(startDate);
+    const end = toLocalDate(endDate);
 
     // If start date is after end date, return 0
     if (start > end) return { months: 0, days: 0 };
-
-    // Normalize to start of day
-    start.setHours(0, 0, 0, 0);
-    end.setHours(0, 0, 0, 0);
 
     // Inclusive month count (useful for full-month ranges)
     const inclusiveMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
