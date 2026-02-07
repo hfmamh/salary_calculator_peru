@@ -20,7 +20,6 @@ const insurancePrimeDeduction = document.getElementById('insurancePrimeDeduction
 const netDisplay = document.getElementById('netDisplay');
 const annualIncome = document.getElementById('annualIncome');
 const uitDeduction = document.getElementById('uitDeduction');
-const expensesDeduction = document.getElementById('expensesDeduction');
 const taxableBase = document.getElementById('taxableBase');
 const annualTax = document.getElementById('annualTax');
 const gratificacionJuly = document.getElementById('gratificacionJuly');
@@ -307,7 +306,6 @@ function calculateNetSalary() {
     additionalIncomeDisplay.textContent = formatCurrency(additionalIncomeAnnual);
     annualIncome.textContent = formatCurrency(grossAnnualForTax);
     uitDeduction.textContent = '-' + formatCurrency(uitDeductionAmount);
-    expensesDeduction.textContent = '-' + formatCurrency(actualDeductibleExpenses);
     taxableBase.textContent = formatCurrency(taxableBaseAmount);
     annualTax.textContent = formatCurrency(annualTaxAmount);
 
