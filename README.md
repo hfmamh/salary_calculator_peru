@@ -35,7 +35,7 @@ Las variables que pueden cambiar en el tiempo (UIT, tasas, tramos de impuestos) 
 
 ### Variables configurables en `js/config.js`:
 
-- `CONFIG_BY_YEAR`: Configuración por año tributario (UIT, tasas, tramos)
+- `CONFIG`: Configuración tributaria del año actual (UIT, tasas, tramos)
 - `AFP_RATE`: Tasa de descuento de AFP
 - `INSURANCE_PRIME_RATE`: Tasa de prima de seguro
 - `GRATIFICACION_ESSALUD_RATE`: Tasa de gratificación para EsSalud
@@ -47,12 +47,11 @@ Las variables que pueden cambiar en el tiempo (UIT, tasas, tramos de impuestos) 
 ## Uso
 
 1. Abre `index.html` en tu navegador
-2. Selecciona el año tributario
-3. Ingresa tu sueldo bruto mensual
-4. Selecciona tu tipo de seguro de salud (EsSalud o EPS)
-5. Ingresa tu fecha de inicio de trabajo (los meses y días se calcularán automáticamente)
-6. Opcionalmente, ingresa ingresos adicionales y gastos deducibles
-7. El cálculo se realiza automáticamente
+2. Ingresa tu sueldo bruto mensual
+3. Selecciona tu tipo de seguro de salud (EsSalud o EPS)
+4. Ingresa tu fecha de inicio de trabajo (opcional; los meses y días se calcularán automáticamente)
+5. Opcionalmente, ingresa ingresos adicionales y gastos deducibles
+6. El cálculo se realiza automáticamente
 
 ## Tecnologías
 

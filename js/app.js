@@ -5,9 +5,9 @@
  * Las variables configurables están en js/config.js
  */
 
-// Configuración activa según año
-let activeConfig = getConfigForYear();
-let TAX_BRACKETS = activeConfig ? getTaxBracketsInSoles(activeConfig) : [];
+// Configuración activa (año actual)
+const activeConfig = CONFIG;
+const TAX_BRACKETS = getTaxBracketsInSoles(activeConfig);
 
 // Referencias a elementos del DOM
 const form = document.getElementById('salaryForm');
@@ -33,9 +33,6 @@ const ctsNovember = document.getElementById('ctsNovember');
 const totalCTS = document.getElementById('totalCTS');
 const ctsInAnnual = document.getElementById('ctsInAnnual');
 const additionalIncomeDisplay = document.getElementById('additionalIncomeDisplay');
-const taxYear = document.getElementById('taxYear');
-const maxDeductibleLabel = document.getElementById('maxDeductibleLabel');
-const uitYearLabel = document.getElementById('uitYearLabel');
 
 /**
  * Formatea un monto como moneda peruana
@@ -52,55 +49,7 @@ function formatCurrency(amount) {
 /**
  * Inicializa el selector de año tributario
  */
-function initTaxYearSelect() {
-    if (!taxYear) return;
-
-    const years = getAvailableYears();
-    taxYear.innerHTML = '';
-
-    years.forEach(year => {
-        const option = document.createElement('option');
-        option.value = year;
-        option.textContent = year;
-        taxYear.appendChild(option);
-    });
-
-    if (years.length === 0) {
-        taxYear.disabled = true;
-        return;
-    }
-
-    const currentYear = String(new Date().getFullYear());
-    const defaultYear = years.includes(currentYear) ? currentYear : years[years.length - 1];
-    taxYear.value = defaultYear;
-
-    setActiveConfig(defaultYear);
-
-    taxYear.addEventListener('change', function () {
-        setActiveConfig(taxYear.value);
-        if (document.getElementById('grossSalary').value) {
-            calculateNetSalary();
-        }
-    });
-}
-
-/**
- * Actualiza configuración activa y etiquetas dependientes del año
- */
-function setActiveConfig(year) {
-    activeConfig = getConfigForYear(year);
-    if (!activeConfig) return;
-
-    TAX_BRACKETS = getTaxBracketsInSoles(activeConfig);
-
-    if (maxDeductibleLabel) {
-        const maxDeductibleAmount = activeConfig.MAX_DEDUCTIBLE_EXPENSES_UIT * activeConfig.UIT;
-        maxDeductibleLabel.textContent = formatCurrency(maxDeductibleAmount);
-    }
-    if (uitYearLabel) {
-        uitYearLabel.textContent = year || '';
-    }
-}
+function initConfigLabels() {}
 
 /**
  * Calcula el impuesto progresivo según los tramos establecidos
@@ -221,78 +170,73 @@ function calculateMonthsAndDays(startDate, endDate) {
 /**
  * Calcula automáticamente los meses y días trabajados basándose en la fecha de inicio
  */
-function calculateWorkedTime() {
-    const startDateInput = document.getElementById('startDate').value;
+function getWorkedTimeFromStartDate(startDateInput) {
     if (!startDateInput) {
-        // Reset all fields to 0
-        document.getElementById('monthsFirstSemester').value = '';
-        document.getElementById('monthsSecondSemester').value = '';
-        document.getElementById('ctsMonthsFirst').value = '';
-        document.getElementById('ctsDaysFirst').value = '';
-        document.getElementById('ctsMonthsSecond').value = '';
-        document.getElementById('ctsDaysSecond').value = '';
-        return;
+        return {
+            monthsFirstSemester: 6,
+            monthsSecondSemester: 6,
+            ctsMonthsFirst: 6,
+            ctsDaysFirst: 0,
+            ctsMonthsSecond: 6,
+            ctsDaysSecond: 0
+        };
     }
-    
+
     const startDate = new Date(startDateInput);
     const currentYear = new Date().getFullYear();
-    
+
     // Gratificación Julio: Enero 1 - Junio 30
     const gratificacionJulioStart = new Date(currentYear, 0, 1); // Enero 1
     const gratificacionJulioEnd = new Date(currentYear, 5, 30); // Junio 30
     const actualStartJulio = startDate > gratificacionJulioStart ? startDate : gratificacionJulioStart;
     const timeJulio = calculateMonthsAndDays(actualStartJulio, gratificacionJulioEnd);
-    
+
     // Gratificación Diciembre: Julio 1 - Diciembre 31
     const gratificacionDiciembreStart = new Date(currentYear, 6, 1); // Julio 1
     const gratificacionDiciembreEnd = new Date(currentYear, 11, 31); // Diciembre 31
     const actualStartDiciembre = startDate > gratificacionDiciembreStart ? startDate : gratificacionDiciembreStart;
     const timeDiciembre = calculateMonthsAndDays(actualStartDiciembre, gratificacionDiciembreEnd);
-    
+
     // CTS Mayo: Noviembre 1 (año anterior) - Abril 30
     const ctsMayoStart = new Date(currentYear - 1, 10, 1); // Noviembre 1 año anterior
     const ctsMayoEnd = new Date(currentYear, 3, 30); // Abril 30
     const actualStartMayo = startDate > ctsMayoStart ? startDate : ctsMayoStart;
     const timeMayo = calculateMonthsAndDays(actualStartMayo, ctsMayoEnd);
-    
+
     // CTS Noviembre: Mayo 1 - Octubre 31
     const ctsNoviembreStart = new Date(currentYear, 4, 1); // Mayo 1
     const ctsNoviembreEnd = new Date(currentYear, 9, 31); // Octubre 31
     const actualStartNoviembre = startDate > ctsNoviembreStart ? startDate : ctsNoviembreStart;
     const timeNoviembre = calculateMonthsAndDays(actualStartNoviembre, ctsNoviembreEnd);
-    
-    // Update form fields
-    document.getElementById('monthsFirstSemester').value = timeJulio.months;
-    document.getElementById('monthsSecondSemester').value = timeDiciembre.months;
-    document.getElementById('ctsMonthsFirst').value = timeMayo.months;
-    document.getElementById('ctsDaysFirst').value = timeMayo.days;
-    document.getElementById('ctsMonthsSecond').value = timeNoviembre.months;
-    document.getElementById('ctsDaysSecond').value = timeNoviembre.days;
+
+    return {
+        monthsFirstSemester: timeJulio.months,
+        monthsSecondSemester: timeDiciembre.months,
+        ctsMonthsFirst: timeMayo.months,
+        ctsDaysFirst: timeMayo.days,
+        ctsMonthsSecond: timeNoviembre.months,
+        ctsDaysSecond: timeNoviembre.days
+    };
 }
 
 /**
  * Función principal que calcula el sueldo neto
  */
 function calculateNetSalary() {
-    if (!activeConfig) {
-        alert('No hay configuración tributaria disponible');
-        return;
-    }
+    const startDateInput = document.getElementById('startDate').value;
+    const workedTime = getWorkedTimeFromStartDate(startDateInput);
 
-    // First, calculate worked time if start date is provided
-    calculateWorkedTime();
-    
     const grossMonthly = parseFloat(document.getElementById('grossSalary').value);
     const healthInsuranceInput = document.querySelector('input[name="healthInsurance"]:checked');
     const healthInsurance = healthInsuranceInput ? healthInsuranceInput.value : 'essalud';
-    const monthsFirstSemester = parseInt(document.getElementById('monthsFirstSemester').value) || 0;
-    const monthsSecondSemester = parseInt(document.getElementById('monthsSecondSemester').value) || 0;
-    const ctsMonthsFirst = parseInt(document.getElementById('ctsMonthsFirst').value) || 0;
-    const ctsDaysFirst = parseInt(document.getElementById('ctsDaysFirst').value) || 0;
-    const ctsMonthsSecond = parseInt(document.getElementById('ctsMonthsSecond').value) || 0;
-    const ctsDaysSecond = parseInt(document.getElementById('ctsDaysSecond').value) || 0;
+    const monthsFirstSemester = workedTime.monthsFirstSemester;
+    const monthsSecondSemester = workedTime.monthsSecondSemester;
+    const ctsMonthsFirst = workedTime.ctsMonthsFirst;
+    const ctsDaysFirst = workedTime.ctsDaysFirst;
+    const ctsMonthsSecond = workedTime.ctsMonthsSecond;
+    const ctsDaysSecond = workedTime.ctsDaysSecond;
     const additionalIncomeAnnual = parseFloat(document.getElementById('additionalIncome').value) || 0;
-    const deductibleExpensesAnnual = parseFloat(document.getElementById('deductibleExpenses').value) || 0;
+    const deductibleExpensesAnnual = 0;
 
     if (isNaN(grossMonthly) || grossMonthly < 0) {
         alert('Por favor ingresa un sueldo bruto válido');
@@ -378,29 +322,7 @@ form.addEventListener('submit', function(e) {
     calculateNetSalary();
 });
 
-// Auto-calculate on input change
-const inputs = document.querySelectorAll('input[type="number"], input[type="radio"], select');
-inputs.forEach(input => {
-    input.addEventListener('input', function() {
-        if (document.getElementById('grossSalary').value) {
-            calculateNetSalary();
-        }
-    });
-    input.addEventListener('change', function() {
-        if (document.getElementById('grossSalary').value) {
-            calculateNetSalary();
-        }
-    });
-});
+// No auto-calculate; only on submit
 
-// Calculate worked time when start date changes
-const startDateInput = document.getElementById('startDate');
-startDateInput.addEventListener('change', function() {
-    calculateWorkedTime();
-    if (document.getElementById('grossSalary').value) {
-        calculateNetSalary();
-    }
-});
-
-// Initialize year selector
-initTaxYearSelect();
+// Initialize labels
+initConfigLabels();
