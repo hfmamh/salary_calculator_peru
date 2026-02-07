@@ -10,6 +10,11 @@
     <div class="container">
         <h1>💰 Calculadora de Sueldo Neto</h1>
         <p class="subtitle">Calcula tu sueldo neto según el sistema tributario peruano</p>
+
+        <div class="bgm-control" aria-live="polite">
+            <button type="button" id="bgmToggle" class="bgm-btn">🎵 Música de fondo: Reproducir</button>
+            <small>Para reproducir, haz click (los navegadores bloquean autoplay con sonido)</small>
+        </div>
         
         <form id="salaryForm">
             <div class="form-group">
@@ -158,6 +163,9 @@
             </div>
         </div>
     </div>
+
+    <!-- YouTube player container (hidden) -->
+    <div id="bgmPlayer" class="bgm-player" aria-hidden="true"></div>
 
     <!-- Cargar configuración primero -->
     <script src="js/config.js"></script>

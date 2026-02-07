@@ -37,6 +37,41 @@ h1 {
     font-size: 0.9em;
 }
 
+.bgm-control {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.bgm-btn {
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 2px solid #e0e0e0;
+    background: #fff;
+    color: #333;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.bgm-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+}
+
+.bgm-player {
+    position: fixed;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+    left: -9999px;
+    top: -9999px;
+}
+
 .form-group {
     margin-bottom: 25px;
 }

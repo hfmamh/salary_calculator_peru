@@ -324,3 +324,85 @@ form.addEventListener('submit', function(e) {
 
 // Initialize labels
 initConfigLabels();
+
+// ---------------------------
+// Background music (YouTube)
+// ---------------------------
+const BGM_VIDEO_ID = 'doLMt10ytHY';
+const bgmToggle = document.getElementById('bgmToggle');
+let bgmPlayer = null;
+let bgmReady = false;
+let bgmPlaying = false;
+let bgmPendingToggle = false;
+
+function updateBgmButton() {
+    if (!bgmToggle) return;
+    bgmToggle.textContent = bgmPlaying
+        ? '🎵 Música de fondo: Pausar'
+        : '🎵 Música de fondo: Reproducir';
+}
+
+function loadYouTubeApi() {
+    if (window.YT && window.YT.Player) {
+        initBgmPlayer();
+        return;
+    }
+    const existing = document.getElementById('yt-iframe-api');
+    if (existing) return;
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    tag.id = 'yt-iframe-api';
+    document.head.appendChild(tag);
+}
+
+function initBgmPlayer() {
+    if (bgmPlayer) return;
+    if (!window.YT || !window.YT.Player) return;
+    bgmPlayer = new YT.Player('bgmPlayer', {
+        videoId: BGM_VIDEO_ID,
+        playerVars: {
+            autoplay: 0,
+            controls: 0,
+            loop: 1,
+            playlist: BGM_VIDEO_ID,
+            rel: 0,
+            modestbranding: 1
+        },
+        events: {
+            onReady: function () {
+                bgmReady = true;
+                if (bgmPendingToggle) {
+                    bgmPendingToggle = false;
+                    toggleBgm();
+                }
+            }
+        }
+    });
+}
+
+function toggleBgm() {
+    if (!bgmReady || !bgmPlayer) {
+        bgmPendingToggle = true;
+        loadYouTubeApi();
+        return;
+    }
+    if (bgmPlaying) {
+        bgmPlayer.pauseVideo();
+        bgmPlaying = false;
+    } else {
+        bgmPlayer.playVideo();
+        bgmPlaying = true;
+    }
+    updateBgmButton();
+}
+
+if (bgmToggle) {
+    bgmToggle.addEventListener('click', function () {
+        toggleBgm();
+    });
+}
+
+// YouTube API callback
+window.onYouTubeIframeAPIReady = function () {
+    initBgmPlayer();
+};
