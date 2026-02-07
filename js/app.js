@@ -5,8 +5,9 @@
  * Las variables configurables están en js/config.js
  */
 
-// Obtener los tramos de impuesto con valores en soles
-const TAX_BRACKETS = getTaxBracketsInSoles();
+// Configuración activa según año
+let activeConfig = getConfigForYear();
+let TAX_BRACKETS = activeConfig ? getTaxBracketsInSoles(activeConfig) : [];
 
 // Referencias a elementos del DOM
 const form = document.getElementById('salaryForm');
@@ -32,6 +33,9 @@ const ctsNovember = document.getElementById('ctsNovember');
 const totalCTS = document.getElementById('totalCTS');
 const ctsInAnnual = document.getElementById('ctsInAnnual');
 const additionalIncomeDisplay = document.getElementById('additionalIncomeDisplay');
+const taxYear = document.getElementById('taxYear');
+const maxDeductibleLabel = document.getElementById('maxDeductibleLabel');
+const uitYearLabel = document.getElementById('uitYearLabel');
 
 /**
  * Formatea un monto como moneda peruana
@@ -43,6 +47,59 @@ function formatCurrency(amount) {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }).format(amount);
+}
+
+/**
+ * Inicializa el selector de año tributario
+ */
+function initTaxYearSelect() {
+    if (!taxYear) return;
+
+    const years = getAvailableYears();
+    taxYear.innerHTML = '';
+
+    years.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        taxYear.appendChild(option);
+    });
+
+    if (years.length === 0) {
+        taxYear.disabled = true;
+        return;
+    }
+
+    const currentYear = String(new Date().getFullYear());
+    const defaultYear = years.includes(currentYear) ? currentYear : years[years.length - 1];
+    taxYear.value = defaultYear;
+
+    setActiveConfig(defaultYear);
+
+    taxYear.addEventListener('change', function () {
+        setActiveConfig(taxYear.value);
+        if (document.getElementById('grossSalary').value) {
+            calculateNetSalary();
+        }
+    });
+}
+
+/**
+ * Actualiza configuración activa y etiquetas dependientes del año
+ */
+function setActiveConfig(year) {
+    activeConfig = getConfigForYear(year);
+    if (!activeConfig) return;
+
+    TAX_BRACKETS = getTaxBracketsInSoles(activeConfig);
+
+    if (maxDeductibleLabel) {
+        const maxDeductibleAmount = activeConfig.MAX_DEDUCTIBLE_EXPENSES_UIT * activeConfig.UIT;
+        maxDeductibleLabel.textContent = formatCurrency(maxDeductibleAmount);
+    }
+    if (uitYearLabel) {
+        uitYearLabel.textContent = year || '';
+    }
 }
 
 /**
@@ -81,9 +138,9 @@ function calculateGratificacion(grossMonthly, monthsWorked, healthInsuranceType)
     // Add percentage based on health insurance
     let bonusRate = 0;
     if (healthInsuranceType === 'essalud') {
-        bonusRate = CONFIG.GRATIFICACION_ESSALUD_RATE;
+        bonusRate = activeConfig.GRATIFICACION_ESSALUD_RATE;
     } else if (healthInsuranceType === 'eps') {
-        bonusRate = CONFIG.GRATIFICACION_EPS_RATE;
+        bonusRate = activeConfig.GRATIFICACION_EPS_RATE;
     }
     
     const bonus = baseGratificacion * bonusRate;
@@ -217,6 +274,11 @@ function calculateWorkedTime() {
  * Función principal que calcula el sueldo neto
  */
 function calculateNetSalary() {
+    if (!activeConfig) {
+        alert('No hay configuración tributaria disponible');
+        return;
+    }
+
     // First, calculate worked time if start date is provided
     calculateWorkedTime();
     
@@ -255,11 +317,11 @@ function calculateNetSalary() {
     const grossAnnual = grossAnnualSalaryOnly + totalGratificacionesAnual + totalCTSAnual;
 
     // Step 1: Subtract UIT deduction (using grossAnnualForTax which includes additional income)
-    const uitDeductionAmount = CONFIG.UIT_DEDUCTION * CONFIG.UIT_2024;
+    const uitDeductionAmount = activeConfig.UIT_DEDUCTION * activeConfig.UIT;
     let taxableBaseAmount = grossAnnualForTax - uitDeductionAmount;
 
     // Step 2: Subtract deductible expenses (max 3 UIT)
-    const maxDeductibleExpenses = CONFIG.MAX_DEDUCTIBLE_EXPENSES_UIT * CONFIG.UIT_2024;
+    const maxDeductibleExpenses = activeConfig.MAX_DEDUCTIBLE_EXPENSES_UIT * activeConfig.UIT;
     const actualDeductibleExpenses = Math.min(deductibleExpensesAnnual, maxDeductibleExpenses);
     taxableBaseAmount = Math.max(0, taxableBaseAmount - actualDeductibleExpenses);
 
@@ -268,10 +330,10 @@ function calculateNetSalary() {
     const monthlyTaxAmount = annualTaxAmount / 12;
 
     // Calculate AFP (using config rate)
-    const afpAmount = grossMonthly * CONFIG.AFP_RATE;
+    const afpAmount = grossMonthly * activeConfig.AFP_RATE;
 
     // Calculate Insurance Prime (using config rate)
-    const insurancePrimeAmount = grossMonthly * CONFIG.INSURANCE_PRIME_RATE;
+    const insurancePrimeAmount = grossMonthly * activeConfig.INSURANCE_PRIME_RATE;
 
     // Calculate net salary
     const netSalary = grossMonthly - afpAmount - insurancePrimeAmount - monthlyTaxAmount;
@@ -339,3 +401,6 @@ startDateInput.addEventListener('change', function() {
         calculateNetSalary();
     }
 });
+
+// Initialize year selector
+initTaxYearSelect();
