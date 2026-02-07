@@ -40,95 +40,8 @@
                 <input 
                     type="date" 
                     id="startDate" 
-                    required
                 >
-                <small>Se calcularán automáticamente los meses y días trabajados</small>
-            </div>
-
-            <div class="form-group">
-                <label for="monthsFirstSemester">Meses trabajados (Enero - Junio)</label>
-                <input 
-                    type="number" 
-                    id="monthsFirstSemester" 
-                    placeholder="Se calcula automáticamente"
-                    min="0"
-                    max="6"
-                    step="1"
-                    readonly
-                >
-                <small>Gratificación de Julio (calculado automáticamente)</small>
-            </div>
-
-            <div class="form-group">
-                <label for="monthsSecondSemester">Meses trabajados (Julio - Diciembre)</label>
-                <input 
-                    type="number" 
-                    id="monthsSecondSemester" 
-                    placeholder="Se calcula automáticamente"
-                    min="0"
-                    max="6"
-                    step="1"
-                    readonly
-                >
-                <small>Gratificación de Diciembre (calculado automáticamente)</small>
-            </div>
-
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
-                <h3 style="color: #333; margin-bottom: 15px; font-size: 1.1em;">CTS (Compensación por Tiempo de Servicios)</h3>
-                
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="ctsMonthsFirst">Meses completos (Noviembre - Abril)</label>
-                    <input 
-                        type="number" 
-                        id="ctsMonthsFirst" 
-                        placeholder="Se calcula automáticamente"
-                        min="0"
-                        max="6"
-                        step="1"
-                        readonly
-                    >
-                </div>
-                
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="ctsDaysFirst">Días adicionales (Noviembre - Abril)</label>
-                    <input 
-                        type="number" 
-                        id="ctsDaysFirst" 
-                        placeholder="Se calcula automáticamente"
-                        min="0"
-                        max="29"
-                        step="1"
-                        readonly
-                    >
-                    <small>CTS de Mayo (calculado automáticamente)</small>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="ctsMonthsSecond">Meses completos (Mayo - Octubre)</label>
-                    <input 
-                        type="number" 
-                        id="ctsMonthsSecond" 
-                        placeholder="Se calcula automáticamente"
-                        min="0"
-                        max="6"
-                        step="1"
-                        readonly
-                    >
-                </div>
-                
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label for="ctsDaysSecond">Días adicionales (Mayo - Octubre)</label>
-                    <input 
-                        type="number" 
-                        id="ctsDaysSecond" 
-                        placeholder="Se calcula automáticamente"
-                        min="0"
-                        max="29"
-                        step="1"
-                        readonly
-                    >
-                    <small>CTS de Noviembre (calculado automáticamente)</small>
-                </div>
+                <small>Opcional. Si no se indica, se asume 1 año completo para gratificaciones y CTS</small>
             </div>
 
             <div class="form-group">
@@ -142,19 +55,6 @@
                     value="0"
                 >
                 <small>Solo afecta al cálculo del impuesto de 5ta categoría (no afecta AFP, gratificaciones ni CTS)</small>
-            </div>
-
-            <div class="form-group">
-                <label for="deductibleExpenses">Gastos Deducibles Anuales (opcional)</label>
-                <input 
-                    type="number" 
-                    id="deductibleExpenses" 
-                    placeholder="Ej: 6,000 (máximo 3 UIT = S/ 15,450)"
-                    min="0"
-                    step="0.01"
-                    value="0"
-                >
-                <small>Máximo: 3 UIT = S/ 15,450.00 (30% de alquileres pagados)</small>
             </div>
 
             <button type="submit" class="calculate-btn">Calcular Sueldo Neto</button>
@@ -246,10 +146,6 @@
                 <div class="breakdown-item">
                     <span>Menos 7 UIT:</span>
                     <span id="uitDeduction">-S/ 0.00</span>
-                </div>
-                <div class="breakdown-item">
-                    <span>Menos Gastos Deducibles:</span>
-                    <span id="expensesDeduction">-S/ 0.00</span>
                 </div>
                 <div class="breakdown-item">
                     <span>Base Imponible:</span>
